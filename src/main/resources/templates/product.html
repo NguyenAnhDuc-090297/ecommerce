@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Product List</title>
+    <meta content="text/html" charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+
+<body>
+
+<h1>
+    <span>Procduct List</span> <a href="/home" class="button-home">Go
+    Home Page</a>
+</h1>
+<br>
+<br>
+
+<button class="btn btn-primary" id="btn-add-modal">Add
+    Product
+</button>
+<br>
+<br>
+
+<!-- Modal Add Product -->
+<div class="modal fade" id="modal-add-product" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add Product</h4>
+            </div>
+            <div class="modal-body">
+                <!-- Add Form -->
+                <form id="form-add" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="col-form-label">ID</label>
+                        <input type="text" class="form-control" id="idAdd"
+                               name="id" required="required">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Name</label>
+                        <input type="text" class="form-control" id="nameAdd"
+                               name="name" required="required">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Description</label>
+                        <input type="text" class="form-control" id="descriptionAdd"
+                               name="description" required="required">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Image</label>
+                        <input type="file" class="form-control" id="imageAdd" name="image"
+                               accept="image/png, image/jpeg, image/jpg" required="required">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Price</label>
+                        <input type="text" class="form-control" id="priceAdd"
+                               name="price" required="required">
+                        <img id="thumbnail">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btn-back-add">Back</button>
+                <button class="btn btn-primary" id="btn-add-product" type="submit">Add
+                    product
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit Product -->
+<div class="modal fade" id="modal-edit-product" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit Product</h4>
+            </div>
+            <div class="modal-body">
+                <!-- Edit Form-->
+                <form id="form-edit" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="col-form-label">ID</label>
+                        <input type="text" class="form-control" id="idEdit" name="id"
+                               readonly="readonly">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Name</label>
+                        <input type="text" class="form-control" id="nameEdit" name="name"
+                               required="required">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Description</label>
+                        <input type="text" class="form-control" id="descriptionEdit" name="description"
+                               required="required">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Image</label>
+                        <input type="file" class="form-control" id="imageEdit" name="image"
+                               accept="image/png, image/jpeg, image/jpg" required="required">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Price</label>
+                        <input type="text" class="form-control" id="priceEdit" name="price"
+                               required="required">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btn-back-edit">Back</button>
+                <button class="btn btn-warning" id="btn-edit-product" type="submit">Edit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Confirm Delete -->
+<div class="modal fade" id="modal-confirm-delete" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Delete Product</h4>
+            </div>
+            <div class="modal-body">
+                <p>Do you want to delete this product?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btn-back-delete">Back</button>
+                <button class="btn btn-danger" id="btn-delete-product" type="submit">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Table -->
+<table class="table" id="product-table">
+    <thead>
+    <tr>
+        <th scope="col">No.</th>
+        <th scope="col">
+            Name
+            <a th:href="@{'/product/' + ${currentPage} + '?sortField=name&sortDirection=' + ${reverseSortDirection}}"><i
+                    class="fas fa-sort-down"></i></a>
+        </th>
+        <th scope="col">
+            Image
+        </th>
+        <th scope="col">Description</th>
+        <th scope="col">
+            Price
+            <a th:href="@{'/product/' + ${currentPage} + '?sortField=price&sortDirection=' + ${reverseSortDirection}}"><i
+                    class="fas fa-sort-down"></i></a>
+        </th>
+        <th scope="col">Create Date</th>
+    </tr>
+    </thead>
+    <tbody th:with="count=0">
+    <tr th:each="product : ${productList}">
+        <td th:text="${product.id}"></td>
+        <td th:text="${product.name}"></td>
+        <td>
+            <img th:src="@{${product.imagePath}}" class="card-img" style="width: 180px">
+        </td>
+        <td th:text="${product.description}"></td>
+        <td th:text="${product.price}"></td>
+        <td th:text="${#dates.format({product.createDate}, 'dd-MM-yyyy')}"></td>
+        <td>
+            <!-- Display modal dialog -->
+            <a th:href="@{'/product/getproductbyid/' + ${product.id}}" class="btn-edit-modal">
+                <i class="fas fa-pen-alt"></i>
+            </a>
+
+            <a th:href="@{/product/productdetails(id=${product.id})}" class="link-view">
+                <i class="fas fa-eye"></i>
+            </a>
+
+            <!-- TODO: Pop-up confirm delete -->
+            <a th:href="@{'/product/deleteproduct/' + ${product.id}}" class="btn-delete-modal">
+                <i class="fas fa-trash-alt"></i>
+            </a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<!--
+<div>
+    <span>Total products: [[${totalItems}]]</span>
+    <a th:if="${currentPage > 1}" th:href="@{'/product'}">First</a>
+    <span th:unless="${currentPage > 1}">First</span>
+
+    <a th:if="${currentPage > 1}" th:href="@{'/product/' + ${currentPage - 1} +
+            '?sortField=' + ${sortField} + '&sortDirection=' + ${sortDirection}}">
+        Previous
+    </a>
+    <span th:unless="${currentPage > 1}">
+        Previous
+    </span>
+
+    <span th:each="index : ${#numbers.sequence(1, totalPages)}">
+        <a th:if="${currentPage != index}" th:href="@{'/product/' + ${index} +
+            '?sortField=' + ${sortField} + '&sortDirection=' + ${sortDirection}}">[[${index}]]</a>
+        <span th:unless="${currentPage != index}">[[${index}]]</span>&nbsp;
+    </span>
+
+    <a th:if="${currentPage < totalPages}" th:href="@{'/product/' + ${currentPage + 1} +
+            '?sortField=' + ${sortField} + '&sortDirection=' + ${sortDirection}}">
+        Next
+    </a>
+    <span th:unless="${currentPage < totalPages}">
+        Next
+    </span>
+    <a th:if="${currentPage < totalPages}" th:href="@{'/product/' + ${totalPages} +
+            '?sortField=' + ${sortField} + '&sortDirection=' + ${sortDirection}}">Last</a>
+    <span th:unless="${currentPage < totalPages}">Last</span>
+</div>
+-->
+
+<nav aria-label="Product page navigation ">
+    <ul class="pagination justify-content-center">
+        <li class="page-item">
+            <a class="page-link" th:if="${currentPage > 1}" th:href="@{'/product'}">First</a>
+            <a class="page-link disabled" th:unless="${currentPage > 1}" tabindex="-1">First</a>
+        </li>
+
+        <li class="page-item">
+            <a class="page-link" th:if="${currentPage > 1}" th:href="@{'/product/' + ${currentPage - 1} +
+						'?sortField=' + ${sortField} + '&sortDirection=' + ${sortDirection}}">Previous</a>
+            <a class="page-link disabled" th:unless="${currentPage > 1}">Previous</a>
+        </li>
+
+        <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}">
+            <a class="page-link" th:if="${currentPage != i}" th:href="@{'/product/' + ${i} +
+						'?sortField=' + ${sortField} + '&sortDirection=' + ${sortDirection}}" th:text="${i}"></a>
+            <a class="page-link disabled" th:unless="${currentPage != i}" th:text="${i}"></a>
+        </li>
+
+        <li class="page-item">
+            <a class="page-link" th:if="${currentPage < totalPages}"
+               th:href="@{'/product/' +	${currentPage + 1} + '?sortField=' + ${sortField} +
+						'&sortDirection=' + ${sortDirection}}">Next</a>
+            <a class="page-link disabled" th:unless="${currentPage < totalPages}">Next</a>
+        </li>
+
+        <li class="page-item">
+            <a class="page-link" th:if="${currentPage < totalPages}" th:href="@{'/product/' + ${totalPages} +
+						'?sortField=' + ${sortField} + '&sortDirection=' + ${sortDirection}}">Last</a>
+            <a class="page-link disabled" th:unless="${currentPage < totalPages}">Last</a>
+        </li>
+    </ul>
+</nav>
+
+<script type="text/javascript" th:src="@{/../js/addProduct.js}"></script>
+<script type="text/javascript" th:src="@{/../js/editProduct.js}"></script>
+<script type="text/javascript" th:src="@{/../js/deleteProduct.js}"></script>
+
+</body>
+
+</html>
