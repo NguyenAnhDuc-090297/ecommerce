@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="ISO-8859-1">
+    <title>Product Details</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <br>
+    <div class="banner">
+        <div class="container">
+            <!-- Title Heading -->
+            <h3 class="title-heading">
+                <span>Image</span>
+                <span>Details</span>
+            </h3>
+            <!-- End Title Heading -->
+            <div class="row">
+                <div class="col-lg-5">
+                    <div class="grid">
+                        <div class="flexslider">
+                            <div class="thumb-image">
+                                <img th:src="@{${'/product/display/' + id}}" class="img-responsive" alt="">
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    	<span th:text=${name} class="mb-3"></span>
+                    <p class="mb-3">
+                        :&#36; <span class="product_price" th:text=${price}></span>
+                    </p>
+                    <div class="product-single-w31">
+                        <span th:text=${description} class="my-sm4"></span>
+                    </div>
+                    <br>
+                    <a href="/product/show">Go Back</a>
+                    &emsp;<a href="/">Go Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
