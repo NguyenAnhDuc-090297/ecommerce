@@ -46,7 +46,7 @@ $(document).ready(function () {
             processData: false,
             success: function () {
                 alert("Update successful");
-                form.reset();
+                location.reload();
             },
             error: function (e) {
                 console.log("ERROR : ", e.toString());

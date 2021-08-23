@@ -63,7 +63,7 @@ public class ProductController {
 			Date createDate = new Date();
 			product.setCreateDate(createDate);
 
-			Product newProduct = productService.saveProduct(product);
+			Product newProduct = productService.createProduct(product);
 
 			logger.info("Save Product Successfully.");
 
@@ -191,19 +191,23 @@ public class ProductController {
 				productUpdate.setName(name);
 				productUpdate.setDescription(description);
 				productUpdate.setPrice(price);
+                Date date = new Date();
+                productUpdate.setCreateDate(date);
 
-				String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
-				productUpdate.setImage(fileName);
-
-				Date date = new Date();
-				productUpdate.setCreateDate(date);
+                if(multipartFile == null) {
+                    String fileName = productUpdate.getImage();
+                    productUpdate.setImage(fileName);
+                } else {
+                    String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
+                    productUpdate.setImage(fileName);
+                    String uploadDirectory = "product-images/" + productUpdate.getId();
+                    FileUploadUtil.saveFile(uploadDirectory, fileName, multipartFile);
+                }
 
 				// Save changes
-				productService.saveProduct(productUpdate);
+				productService.updateProduct(productUpdate);
 
 				logger.info("Update Product Successfully.");
-				String uploadDirectory = "product-images/" + productUpdate.getId();
-				FileUploadUtil.saveFile(uploadDirectory, fileName, multipartFile);
 
 				return new ResponseEntity<MessageProduct>(new MessageProduct("Update Successfully", 
 						Arrays.asList(productUpdate), ""), HttpStatus.OK);

@@ -14,21 +14,36 @@
 
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        .input-group {
+            width: 250px;
+            float: right !important;
+        }
+    </style>
 </head>
 
 <body>
 
 <h1>
-    <span>Procduct List</span> <a href="/home" class="button-home">Go
-    Home Page</a>
+    <span>Todo: Nvabar</span>
 </h1>
+
 <br>
+<div class="input-group">
+    <form th:action="@{/product/search}" id="form-search" style="display: flex">
+        <input class="form-control" type="search" id="input-search" name="keyword" th:value="${keyword}" placeholder="Seach">
+        &nbsp;
+        <button class="btn btn-primary" id="btn-search" type="submit">
+            <i class="fas fa-search"></i>
+        </button>
+    </form>
+</div>
+
 <br>
 
-<button class="btn btn-primary" id="btn-add-modal">Add
-    Product
-</button>
-<br>
+<div>
+    <button class="btn btn-primary" id="btn-add-modal">Create Product</button>
+</div>
 <br>
 
 <!-- Modal Add Product -->
@@ -143,56 +158,58 @@
 </div>
 
 <!-- Table -->
-<table class="table" id="product-table">
-    <thead>
-    <tr>
-        <th scope="col">No.</th>
-        <th scope="col">
-            Name
-            <a th:href="@{'/product/' + ${currentPage} + '?sortField=name&sortDirection=' + ${reverseSortDirection}}"><i
-                    class="fas fa-sort-down"></i></a>
-        </th>
-        <th scope="col">
-            Image
-        </th>
-        <th scope="col">Description</th>
-        <th scope="col">
-            Price
-            <a th:href="@{'/product/' + ${currentPage} + '?sortField=price&sortDirection=' + ${reverseSortDirection}}"><i
-                    class="fas fa-sort-down"></i></a>
-        </th>
-        <th scope="col">Create Date</th>
-    </tr>
-    </thead>
-    <tbody th:with="count=0">
-    <tr th:each="product : ${productList}">
-        <td th:text="${product.id}"></td>
-        <td th:text="${product.name}"></td>
-        <td>
-            <img th:src="@{${product.imagePath}}" class="card-img" style="width: 180px">
-        </td>
-        <td th:text="${product.description}"></td>
-        <td th:text="${product.price}"></td>
-        <td th:text="${#dates.format({product.createDate}, 'dd-MM-yyyy')}"></td>
-        <td>
-            <!-- Display modal dialog -->
-            <a th:href="@{'/product/getproductbyid/' + ${product.id}}" class="btn-edit-modal">
-                <i class="fas fa-pen-alt"></i>
-            </a>
+<div class="table-responsive">
+    <table class="table table-bordered table-striped" id="product-table">
+        <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">
+                Name
+                <a th:href="@{'/product/' + ${currentPage} + '?sortField=name&sortDirection=' + ${reverseSortDirection}}"><i
+                        class="fas fa-sort-down"></i></a>
+            </th>
+            <th scope="col">
+                Image
+            </th>
+            <th scope="col">Description</th>
+            <th scope="col">
+                Price
+                <a th:href="@{'/product/' + ${currentPage} + '?sortField=price&sortDirection=' + ${reverseSortDirection}}"><i
+                        class="fas fa-sort-down"></i></a>
+            </th>
+            <th scope="col">Create Date</th>
+            <th scope="col">Actions</th>
+        </tr>
+        </thead>
+        <tbody th:with="count=0">
+        <tr th:each="product : ${productList}">
+            <td th:text="${product.id}"></td>
+            <td th:text="${product.name}"></td>
+            <td>
+                <img th:src="@{${product.imagePath}}" class="card-img" style="width: 180px">
+            </td>
+            <td th:text="${product.description}"></td>
+            <td th:text="${product.price}"></td>
+            <td th:text="${#dates.format({product.createDate}, 'dd-MM-yyyy')}"></td>
+            <td>
+                <!-- Display modal dialog -->
+                <a th:href="@{'/product/getproductbyid/' + ${product.id}}" class="btn-edit-modal">
+                    <i class="fas fa-pen-alt"></i>
+                </a>
 
-            <a th:href="@{/product/productdetails(id=${product.id})}" class="link-view">
-                <i class="fas fa-eye"></i>
-            </a>
+                <a th:href="@{/product/productdetails(id=${product.id})}" class="link-view">
+                    <i class="fas fa-eye"></i>
+                </a>
 
-            <!-- TODO: Pop-up confirm delete -->
-            <a th:href="@{'/product/deleteproduct/' + ${product.id}}" class="btn-delete-modal">
-                <i class="fas fa-trash-alt"></i>
-            </a>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
+                <!-- TODO: Pop-up confirm delete -->
+                <a th:href="@{'/product/deleteproduct/' + ${product.id}}" class="btn-delete-modal">
+                    <i class="fas fa-trash-alt"></i>
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
 <!--
 <div>
     <span>Total products: [[${totalItems}]]</span>
@@ -229,32 +246,69 @@
 <nav aria-label="Product page navigation ">
     <ul class="pagination justify-content-center">
         <li class="page-item">
-            <a class="page-link" th:if="${currentPage > 1}" th:href="@{'/product'}">First</a>
+            <a class="page-link" th:if="${currentPage > 1}"
+               th:href="@{'/product' + ${search != null ? '/search' : ''} +
+                        ${keyword != null ? '?keyword=' + keyword : ''}}">
+                First
+            </a>
             <a class="page-link disabled" th:unless="${currentPage > 1}" tabindex="-1">First</a>
         </li>
 
         <li class="page-item">
-            <a class="page-link" th:if="${currentPage > 1}" th:href="@{'/product/' + ${currentPage - 1} +
-						'?sortField=' + ${sortField} + '&sortDirection=' + ${sortDirection}}">Previous</a>
-            <a class="page-link disabled" th:unless="${currentPage > 1}">Previous</a>
+            <a class="page-link" th:if="${currentPage > 1}"
+               th:href="@{'/product' +
+                        ${search != null ? '/search' : ''} +
+                        '?page=' + ${currentPage - 1} +
+                        ${sortField != null ? '&sortField=' + sortField : ''} +
+						${sortDirection != null ? '&sortDirection=' + sortDirection : ''} +
+						${keyword != null ? '&keyword=' + keyword : ''}}">
+                <!-- Previous -->
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            <a class="page-link disabled" th:unless="${currentPage > 1}">
+                <!-- Previous -->
+                <i class="fas fa-chevron-left"></i>
+            </a>
         </li>
 
         <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}">
-            <a class="page-link" th:if="${currentPage != i}" th:href="@{'/product/' + ${i} +
-						'?sortField=' + ${sortField} + '&sortDirection=' + ${sortDirection}}" th:text="${i}"></a>
+            <a class="page-link" th:if="${currentPage != i}"
+               th:href="@{'/product' + ${search != null ? '/search' : ''} +
+                        '?page=' + ${i} +
+                        ${sortField != null ? '&sortField=' + sortField : ''} +
+						${sortDirection != null ? '&sortDirection=' + sortDirection : ''} +
+						${keyword != null ? '&keyword=' + keyword : ''}}"
+               th:text="${i}"></a>
             <a class="page-link disabled" th:unless="${currentPage != i}" th:text="${i}"></a>
         </li>
 
         <li class="page-item">
             <a class="page-link" th:if="${currentPage < totalPages}"
-               th:href="@{'/product/' +	${currentPage + 1} + '?sortField=' + ${sortField} +
-						'&sortDirection=' + ${sortDirection}}">Next</a>
-            <a class="page-link disabled" th:unless="${currentPage < totalPages}">Next</a>
+               th:href="@{'/product' +
+                        ${search != null ? '/search' : ''} +
+                        '?page=' + ${currentPage + 1} +
+                        ${sortField != null ? '&sortField=' + sortField : ''} +
+                        ${sortDirection != null ? '&sortDirection=' + sortDirection : ''} +
+						${keyword != null ? '&keyword=' + keyword : ''}}">
+                <!-- Next -->
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            <a class="page-link disabled" th:unless="${currentPage < totalPages}">
+                <!-- Next -->
+                <i class="fas fa-chevron-right"></i>
+            </a>
         </li>
 
         <li class="page-item">
-            <a class="page-link" th:if="${currentPage < totalPages}" th:href="@{'/product/' + ${totalPages} +
-						'?sortField=' + ${sortField} + '&sortDirection=' + ${sortDirection}}">Last</a>
+            <a class="page-link" th:if="${currentPage < totalPages}"
+               th:href="@{'/product' +
+                        ${search != null ? '/search' : ''} +
+                        '?page=' + ${totalPages} +
+                        ${sortField != null ? '&sortField=' + sortField : ''} +
+						${sortDirection != null ? '&sortDirection=' + sortDirection : ''} +
+						${keyword != null ? '&keyword=' + keyword : ''}}">
+                Last
+            </a>
             <a class="page-link disabled" th:unless="${currentPage < totalPages}">Last</a>
         </li>
     </ul>

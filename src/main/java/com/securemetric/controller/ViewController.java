@@ -1,12 +1,9 @@
 package com.securemetric.controller;
 
-import java.io.IOException;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
-//import java.util.List;
 import java.util.Optional;
 
-import com.securemetric.util.FileUploadUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,16 +11,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.securemetric.entity.Product;
 import com.securemetric.service.ProductService;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
 public class ViewController {
@@ -39,29 +32,83 @@ public class ViewController {
 	}
 
     @GetMapping("/product")
-    public String show(Model model) {
+    public String productPageandSort(Model model,
+						   @RequestParam(value = "page", required = false) Integer page,
+						   @RequestParam(value = "sortField", required = false) String sortField,
+						   @RequestParam(value = "sortDirection", required = false) String sortDirection){
 
-        return pageView(model, 1, "name", "asc");
-    }
+		Page<Product> pageOfProduct = null;
+		List<Product> productList = null;
+		int totalPages = 0;
 
-    @GetMapping("/product/{pageNo}")
-    public String pageView(Model model, @PathVariable("pageNo") int pageNo,
-						   @Param("sortField") String sortField,
-						   @Param("sortDirection") String sortDirection){
-        Page<Product> page = productService.getAllProducts(pageNo, sortField, sortDirection);
-        List<Product> productList = page.getContent();
-        int totalPages = page.getTotalPages();
-        model.addAttribute("currentPage", pageNo);
+		if(page == null) {
+			page = 1;
+			pageOfProduct = productService.getProductsPage(page);
+			productList = pageOfProduct.getContent();
+			totalPages = pageOfProduct.getTotalPages();
+		} else {
+			if (sortField == null && sortDirection == null) {
+				pageOfProduct = productService.getProductsPage(page);
+				productList = pageOfProduct.getContent();
+				totalPages = pageOfProduct.getTotalPages();
+			} else {
+				pageOfProduct = productService.getProductsPageAndSort(page, sortField, sortDirection);
+				productList = pageOfProduct.getContent();
+				totalPages = pageOfProduct.getTotalPages();
+				model.addAttribute("sortField", sortField);
+				model.addAttribute("sortDirection", sortDirection);
+				model.addAttribute("reverseSortDirection", sortDirection.equals("asc") ? "des" : "asc");
+			}
+		}
+
+        model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
-        model.addAttribute("totalItems", page.getTotalElements());
-
-        model.addAttribute("sortField", sortField);
-		model.addAttribute("sortDirection", sortDirection);
-		model.addAttribute("reverseSortDirection", sortDirection.equals("asc") ? "des" : "asc");
-
+        model.addAttribute("totalItems", pageOfProduct.getTotalElements());
         model.addAttribute("productList", productList);
+
         return "product";
     }
+
+	@GetMapping("/product/search")
+	public String searchPageAndSort(Model model,
+							 @RequestParam(value = "keyword") String keyword,
+							 @RequestParam(value = "page", required = false) Integer page,
+							 @RequestParam(value = "sortField", required = false) String sortField,
+							 @RequestParam(value = "sortDirection", required = false) String sortDirection){
+
+		Page<Product> pageOfProduct = null;
+		List<Product> productList = null;
+		int totalPages = 0;
+
+		if(page == null) {
+			page = 1;
+			pageOfProduct = productService.searchProductPage(page, keyword);
+			productList = pageOfProduct.getContent();
+			totalPages = pageOfProduct.getTotalPages();
+		} else {
+			if(sortField == null && sortDirection == null) {
+				pageOfProduct = productService.searchProductPage(page, keyword);
+				productList = pageOfProduct.getContent();
+				totalPages = pageOfProduct.getTotalPages();
+			} else {
+				pageOfProduct = productService.searchProductAndPageSort(page, sortField, sortDirection, keyword);
+				productList = pageOfProduct.getContent();
+				totalPages = pageOfProduct.getTotalPages();
+				model.addAttribute("sortField", sortField);
+				model.addAttribute("sortDirection", sortDirection);
+				model.addAttribute("reverseSortDirection", sortDirection.equals("asc") ? "des" : "asc");
+			}
+		}
+
+		model.addAttribute("currentPage", page);
+		model.addAttribute("totalPages", totalPages);
+		model.addAttribute("totalItems", pageOfProduct.getTotalElements());
+		model.addAttribute("keyword", keyword);
+		model.addAttribute("productList", productList);
+		model.addAttribute("search", "search");
+
+		return "product";
+	}
 
 	@GetMapping("/productdetails")
 	public String showProductDetails(@RequestParam("id") Long id, Optional<Product> product, Model model) {

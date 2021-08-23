@@ -18,38 +18,56 @@ public class ProductService {
 
 	@Autowired
 	private ProductRepository productRepository;
-	
-	public Product saveProduct(Product product) {
+
+	private static int pageSize = 3;
+
+	public Product createProduct(Product product) {
 		return productRepository.save(product);
 	}
-	
-//	public List<Product> getAllProducts(){
-//		return productRepository.findAll();
-//	}
 
-	public Page<Product> getAllProducts(int pageNo, String sortField, String sortDirection){
-		int pageSize = 3;
-		Pageable pageable = PageRequest.of(pageNo - 1, pageSize,
-				sortDirection.equals("asc") ? Sort.by(sortField).ascending() : Sort.by(sortField).descending());
-		return productRepository.findAll(pageable);
+	public Product updateProduct(Product product) {
+		return productRepository.save(product);
 	}
-	
+
+	public void deleteProduct(Long id) {
+		productRepository.deleteById(id);
+	}
+
 	public Optional<Product> getProductById(Long id){
 		return productRepository.findById(id);
 	}
-	
+
 	public boolean checkProductExistedOrNot(Long id) {
 		if(productRepository.existsById(id)) {
 			return true;
 		}
 		return false;
 	}
-	
-	public Product updateUser(Product product) {
-		return productRepository.save(product);
+
+	public Page<Product> getProductsPage(int pageNo){
+		Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+		return productRepository.findAll(pageable);
 	}
-	
-	public void deleteProduct(Long id) {
-		productRepository.deleteById(id);
+
+	public Page<Product> getProductsPageAndSort(int page, String sortField, String sortDirection){
+		Pageable pageable = PageRequest.of(page - 1, pageSize,
+				sortDirection.equals("asc") ? Sort.by(sortField).ascending() : Sort.by(sortField).descending());
+
+		return productRepository.findAll(pageable);
+	}
+
+	public Page<Product> searchProductPage(int page, String keyword){
+		Pageable pageable = PageRequest.of(page - 1, pageSize);
+		return productRepository.searchProduct(keyword, pageable);
+	}
+
+	public Page<Product> searchProductAndPageSort(int page, String sortField, String sortDirection, String keyword){
+		Pageable pageable = PageRequest.of(page - 1, pageSize,
+				sortDirection.equals("asc") ? Sort.by(sortField).ascending() : Sort.by(sortField).descending());
+		if(keyword != null) {
+			return productRepository.searchProduct(keyword, pageable);
+		} else {
+			return productRepository.findAll(pageable);
+		}
 	}
 }
